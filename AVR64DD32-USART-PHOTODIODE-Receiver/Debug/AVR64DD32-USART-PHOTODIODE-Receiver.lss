@@ -19,15 +19,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   7 .debug_abbrev 00002545  00000000  00000000  0000405a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000007a6  00000000  00000000  0000659f  2**0
+  8 .debug_line   000007aa  00000000  00000000  0000659f  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000140  00000000  00000000  00006d48  2**2
+  9 .debug_frame  00000140  00000000  00000000  00006d4c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    0000171b  00000000  00000000  00006e88  2**0
+ 10 .debug_str    0000171b  00000000  00000000  00006e8c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    000002a9  00000000  00000000  000085a3  2**0
+ 11 .debug_loc    000002a9  00000000  00000000  000085a7  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000088  00000000  00000000  0000884c  2**0
+ 12 .debug_ranges 00000088  00000000  00000000  00008850  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -120,76 +120,76 @@ Disassembly of section .text:
  1b6:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000001ba <CLOCK_INHF_clock_init>:
-
-#include "Settings.h"
-
-void CLOCK_INHF_clock_init(){
-	/* Enable internal (24 MHz) clock input */
-	ccp_write_io((uint8_t *) &CLKCTRL.OSCHFCTRLA, CLKCTRL_FRQSEL_24M_gc); //1, 2, 3, 4, 8, 12, 16, 20 or 24Mhz
+ * - Ensuring the system clock uses the internal oscillator as its source.
+ * - Waiting for the system oscillator change to complete.
+ */
+void CLOCK_INHF_clock_init() {
+    /* Enable internal (24 MHz) clock input */
+    ccp_write_io((uint8_t *) &CLKCTRL.OSCHFCTRLA, CLKCTRL_FRQSEL_24M_gc); ///< Set oscillator frequency to 24 MHz.
  1ba:	64 e2       	ldi	r22, 0x24	; 36
  1bc:	88 e6       	ldi	r24, 0x68	; 104
  1be:	90 e0       	ldi	r25, 0x00	; 0
  1c0:	0e 94 b4 07 	call	0xf68	; 0xf68 <ccp_write_io>
+    
+    /* Set Main Clock Prescaler (commented out by default) */
+    // ccp_write_io((uint8_t *) &CLKCTRL.MCLKCTRLB, CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm); ///< Enable clock prescaler if needed (currently not used).
 
-	/* Set Main Clock Prescaler*/
-	//ccp_write_io((uint8_t *) &CLKCTRL.MCLKCTRLB, CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm); // uncomment if need clock prescaller
-
-	/* Set the main clock to use internal clock as source */
-	ccp_write_io((uint8_t *) &CLKCTRL.MCLKCTRLA, CLKCTRL_CLKSEL_OSCHF_gc | CLKCTRL_CLKOUT_bm); //comment | CLKCTRL_CLKOUT_bm if no need clock output on PA4
+    /* Set the main clock to use internal clock as source */
+    ccp_write_io((uint8_t *) &CLKCTRL.MCLKCTRLA, CLKCTRL_CLKSEL_OSCHF_gc | CLKCTRL_CLKOUT_bm); ///< Set the internal 24 MHz oscillator as the main clock source, with optional clock output on PA4.
  1c4:	60 e8       	ldi	r22, 0x80	; 128
  1c6:	80 e6       	ldi	r24, 0x60	; 96
  1c8:	90 e0       	ldi	r25, 0x00	; 0
  1ca:	0e 94 b4 07 	call	0xf68	; 0xf68 <ccp_write_io>
 
-	/* Wait for system oscillator change to complete */
-	while (CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm)
+    /* Wait for system oscillator change to complete */
+    while (CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {}; ///< Wait for oscillator switch to be completed.
  1ce:	80 91 65 00 	lds	r24, 0x0065	; 0x800065 <__TEXT_REGION_LENGTH__+0x7f0065>
  1d2:	80 fd       	sbrc	r24, 0
  1d4:	fc cf       	rjmp	.-8      	; 0x1ce <CLOCK_INHF_clock_init+0x14>
-	{};
 }
  1d6:	08 95       	ret
 
 000001d8 <GPIO_init>:
- *  Author: Saulius
- */ 
-#include "Settings.h"
-
-void GPIO_init(){
-	PORTA.DIRCLR = PIN1_bm; // Set PA1 as input (USART0 RX)
+ * - PA1 is configured as an input.
+ * - A pull-up resistor is enabled on PA1 to ensure a defined high level when no signal is present.
+ * - The input signal is inverted for proper signal reception from the photodiode.
+ */
+void GPIO_init() {
+    PORTA.DIRCLR = PIN1_bm; ///< Set PA1 as input (USART0 RX).
  1d8:	e0 e0       	ldi	r30, 0x00	; 0
  1da:	f4 e0       	ldi	r31, 0x04	; 4
  1dc:	82 e0       	ldi	r24, 0x02	; 2
  1de:	82 83       	std	Z+2, r24	; 0x02
-	PORTA.PIN1CTRL = PORT_PULLUPEN_bm | PORT_INVEN_bm; // Enable pull-up and inverting input signal for PA1 (USART0 RX)
+    PORTA.PIN1CTRL = PORT_PULLUPEN_bm | PORT_INVEN_bm; ///< Enable pull-up resistor and invert input signal for PA1.
  1e0:	88 e8       	ldi	r24, 0x88	; 136
  1e2:	81 8b       	std	Z+17, r24	; 0x11
  1e4:	08 95       	ret
 
 000001e6 <main>:
- * Author : Saulius
- */ 
-#include "Settings.h"
+ * 
+ * @return This function does not return any value as it contains an infinite loop.
+ */
 int main(void)
 {
-	CLOCK_INHF_clock_init(); //24Mhz main cpu speed
+    CLOCK_INHF_clock_init(); ///< Configure the system clock to 24 MHz.
  1e6:	0e 94 dd 00 	call	0x1ba	; 0x1ba <CLOCK_INHF_clock_init>
-    GPIO_init(); // initialization of general purpose input and output
+    GPIO_init(); ///< Initialize general-purpose input/output (GPIO) pins.
  1ea:	0e 94 ec 00 	call	0x1d8	; 0x1d8 <GPIO_init>
-	USART0_init(); // initilization USART0 as receiver only
+    USART0_init(); ///< Initialize USART0 for receiving data only.
  1ee:	0e 94 fc 00 	call	0x1f8	; 0x1f8 <USART0_init>
+
     while (1) 
     {
-		LedDataReader();// reading data using photodiode
+        LedDataReader(); ///< Continuously read data from the photodiode.
  1f2:	0e 94 2b 01 	call	0x256	; 0x256 <LedDataReader>
  1f6:	fd cf       	rjmp	.-6      	; 0x1f2 <main+0xc>
 
 000001f8 <USART0_init>:
-	va_list args;
-	va_start(args, format);
-	vsnprintf(buffer, sizeof(buffer), format, args); // Format the message into the buffer
-	va_end(args);
-	USART0_sendString(buffer); // Use USART0 for sending
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args); ///< Format the message into the buffer.
+    va_end(args);
+    USART0_sendString(buffer); ///< Send the formatted string via USART0.
 }
  1f8:	e0 e0       	ldi	r30, 0x00	; 0
  1fa:	f8 e0       	ldi	r31, 0x08	; 8
@@ -213,18 +213,21 @@ int main(void)
  220:	08 95       	ret
 
 00000222 <executeCommand>:
-
-
+ * This function processes the command string received from USART0 and updates the
+ * photodiode reading data. The ADC voltage is converted into an angle.
+ * 
+ * @param command The command string received from USART0.
+ */
 void executeCommand(char *command) {
  222:	cf 93       	push	r28
  224:	df 93       	push	r29
-	UART_READ_PHOTODIODE.ADC_Voltage = atoi(command);
+    UART_READ_PHOTODIODE.ADC_Voltage = atoi(command); ///< Convert the command string to an integer (ADC voltage).
  226:	0e 94 06 06 	call	0xc0c	; 0xc0c <atoi>
  22a:	c0 e0       	ldi	r28, 0x00	; 0
  22c:	d0 e6       	ldi	r29, 0x60	; 96
  22e:	88 83       	st	Y, r24
  230:	99 83       	std	Y+1, r25	; 0x01
-	UART_READ_PHOTODIODE.Angle = 0.3515625 * UART_READ_PHOTODIODE.ADC_Voltage; //360/1024 = 0,3515625
+    UART_READ_PHOTODIODE.Angle = 0.3515625 * UART_READ_PHOTODIODE.ADC_Voltage; ///< Convert the ADC voltage to an angle (360/1024 = 0.3515625).
  232:	bc 01       	movw	r22, r24
  234:	80 e0       	ldi	r24, 0x00	; 0
  236:	90 e0       	ldi	r25, 0x00	; 0
@@ -244,7 +247,11 @@ void executeCommand(char *command) {
  254:	08 95       	ret
 
 00000256 <LedDataReader>:
-
+ * 
+ * This function continuously reads characters from USART0 until a complete command is received.
+ * It processes the command string and executes the associated action, such as updating the 
+ * photodiode reading.
+ */
 void LedDataReader() {
  256:	0f 93       	push	r16
  258:	1f 93       	push	r17
@@ -255,8 +262,8 @@ void LedDataReader() {
  262:	2f 97       	sbiw	r28, 0x0f	; 15
  264:	cd bf       	out	0x3d, r28	; 61
  266:	de bf       	out	0x3e, r29	; 62
-	uint8_t index = 0;
-	char command[15] = {0};
+    uint8_t index = 0; ///< Index for storing characters in the command array.
+    char command[15] = {0}; ///< Array to store the received command.
  268:	fe 01       	movw	r30, r28
  26a:	31 96       	adiw	r30, 0x01	; 1
  26c:	8f e0       	ldi	r24, 0x0F	; 15
@@ -264,53 +271,55 @@ void LedDataReader() {
  270:	1d 92       	st	X+, r1
  272:	8a 95       	dec	r24
  274:	e9 f7       	brne	.-6      	; 0x270 <LedDataReader+0x1a>
-	uint8_t start = 0;
+    uint8_t start = 0; ///< Flag to indicate the start of a command.
  276:	10 e0       	ldi	r17, 0x00	; 0
-	UART_READ_PHOTODIODE.ADC_Voltage = atoi(command);
-	UART_READ_PHOTODIODE.Angle = 0.3515625 * UART_READ_PHOTODIODE.ADC_Voltage; //360/1024 = 0,3515625
-}
-
+ * This function continuously reads characters from USART0 until a complete command is received.
+ * It processes the command string and executes the associated action, such as updating the 
+ * photodiode reading.
+ */
 void LedDataReader() {
-	uint8_t index = 0;
+    uint8_t index = 0; ///< Index for storing characters in the command array.
  278:	00 e0       	ldi	r16, 0x00	; 0
  27a:	01 c0       	rjmp	.+2      	; 0x27e <LedDataReader+0x28>
-				} else {
-				command[index++] = c;
-			}
-		}
-		if (c == '[') {
-			start = 1;
- 27c:	11 e0       	ldi	r17, 0x01	; 1
-	uint8_t index = 0;
-	char command[15] = {0};
-	uint8_t start = 0;
+                command[index++] = c; ///< Store the character in the command array.
+            }
+        }
 
-	while (1) {
-		char c = USART0_readChar();
+        if (c == '[') {
+            start = 1; ///< Start receiving the command when '[' is encountered.
+ 27c:	11 e0       	ldi	r17, 0x01	; 1
+    uint8_t index = 0; ///< Index for storing characters in the command array.
+    char command[15] = {0}; ///< Array to store the received command.
+    uint8_t start = 0; ///< Flag to indicate the start of a command.
+
+    while (1) {
+        char c = USART0_readChar(); ///< Read a character from USART0.
  27e:	0e 94 07 01 	call	0x20e	; 0x20e <USART0_readChar>
-		if (start == 1) {
+        
+        if (start == 1) {
  282:	11 30       	cpi	r17, 0x01	; 1
  284:	79 f4       	brne	.+30     	; 0x2a4 <LedDataReader+0x4e>
-			if (c == ']') {
+            if (c == ']') {
  286:	8d 35       	cpi	r24, 0x5D	; 93
  288:	29 f4       	brne	.+10     	; 0x294 <LedDataReader+0x3e>
-				start = 0;
-				executeCommand(command);
+                start = 0; ///< End of command, execute the command.
+                executeCommand(command); ///< Process the command.
  28a:	ce 01       	movw	r24, r28
  28c:	01 96       	adiw	r24, 0x01	; 1
  28e:	0e 94 11 01 	call	0x222	; 0x222 <executeCommand>
-		}
-		if (c == '[') {
-			start = 1;
-		}
-	}
+
+        if (c == '[') {
+            start = 1; ///< Start receiving the command when '[' is encountered.
+        }
+    }
+}
  292:	0b c0       	rjmp	.+22     	; 0x2aa <LedDataReader+0x54>
-				start = 0;
-				executeCommand(command);
-				index = 0;
-				break;
-				} else {
-				command[index++] = c;
+                start = 0; ///< End of command, execute the command.
+                executeCommand(command); ///< Process the command.
+                index = 0; ///< Reset index for the next command.
+                break; ///< Exit the loop after processing the command.
+            } else {
+                command[index++] = c; ///< Store the character in the command array.
  294:	e1 e0       	ldi	r30, 0x01	; 1
  296:	f0 e0       	ldi	r31, 0x00	; 0
  298:	ec 0f       	add	r30, r28
@@ -319,15 +328,17 @@ void LedDataReader() {
  29e:	f1 1d       	adc	r31, r1
  2a0:	80 83       	st	Z, r24
  2a2:	0f 5f       	subi	r16, 0xFF	; 255
-			}
-		}
-		if (c == '[') {
+            }
+        }
+
+        if (c == '[') {
  2a4:	8b 35       	cpi	r24, 0x5B	; 91
  2a6:	59 f7       	brne	.-42     	; 0x27e <LedDataReader+0x28>
  2a8:	e9 cf       	rjmp	.-46     	; 0x27c <LedDataReader+0x26>
-			start = 1;
-		}
-	}
+            start = 1; ///< Start receiving the command when '[' is encountered.
+        }
+    }
+}
  2aa:	2f 96       	adiw	r28, 0x0f	; 15
  2ac:	cd bf       	out	0x3d, r28	; 61
  2ae:	de bf       	out	0x3e, r29	; 62

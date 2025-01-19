@@ -670,14 +670,14 @@ END GROUP
  .debug_abbrev  0x000022bd      0x274 USART.o
  .debug_abbrev  0x00002531       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/Atmel/AVR-Dx_DFP/2.6.303/gcc/dev/avr64dd32/avrxmega2\libavr64dd32.a(ccp_write.o)
 
-.debug_line     0x00000000      0x7a6
+.debug_line     0x00000000      0x7aa
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x16f C:/Program Files (x86)/Atmel/Studio/7.0/Packs/Atmel/AVR-Dx_DFP/2.6.303/gcc/dev/avr64dd32/avrxmega2/crtavr64dd32.o
  .debug_line    0x0000016f      0x181 CLK.o
- .debug_line    0x000002f0      0x109 GPIO.o
- .debug_line    0x000003f9       0x61 main.o
- .debug_line    0x0000045a      0x2e5 USART.o
- .debug_line    0x0000073f       0x67 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/Atmel/AVR-Dx_DFP/2.6.303/gcc/dev/avr64dd32/avrxmega2\libavr64dd32.a(ccp_write.o)
+ .debug_line    0x000002f0      0x10b GPIO.o
+ .debug_line    0x000003fb       0x63 main.o
+ .debug_line    0x0000045e      0x2e5 USART.o
+ .debug_line    0x00000743       0x67 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/Atmel/AVR-Dx_DFP/2.6.303/gcc/dev/avr64dd32/avrxmega2\libavr64dd32.a(ccp_write.o)
 
 .debug_frame    0x00000000      0x140
  *(.debug_frame)
