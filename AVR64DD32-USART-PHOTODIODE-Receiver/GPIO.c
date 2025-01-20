@@ -21,5 +21,5 @@
  */
 void GPIO_init() {
     PORTA.DIRCLR = PIN1_bm; ///< Set PA1 as input (USART0 RX).
-    PORTA.PIN1CTRL = PORT_PULLUPEN_bm | PORT_INVEN_bm; ///< Enable pull-up resistor and invert input signal for PA1.
+    PORTA.PIN1CTRL = PORT_PULLUPEN_bm /*| PORT_INVEN_bm*/; ///< Enable pull-up resistor and invert input signal for PA1.
 }

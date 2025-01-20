@@ -21,7 +21,7 @@
  * The USART0 is configured with 8 data bits, no parity, 1 stop bit, and asynchronous mode.
  */
 void USART0_init() {
-    USART0.BAUD = (uint16_t)USART0_BAUD_RATE(250000); ///< Set baud rate to 2500000.
+    USART0.BAUD = (uint16_t)USART0_BAUD_RATE(500000); ///< Set baud rate to 2500000.
     USART0.CTRLB = USART_RXEN_bm | USART_RXMODE_CLK2X_gc; ///< Enable RX with double speed mode.
     USART0.CTRLC = USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_8BIT_gc | USART_PMODE_DISABLED_gc | USART_SBMODE_1BIT_gc; ///< Configure for 8-bit data, no parity, 1 stop bit, and asynchronous mode.
 }
