@@ -14,15 +14,30 @@
 #define USART_H_
 
 /**
+ * @brief Timeout Counter
+ * 
+ * Defines the timeout value for USART0 operations.
+ */
+#define TIMEOUT_COUNTER 500000 ///< Timeout counter value for operations
+
+/** 
+ * @brief Error count threshold for handling errors.
+ */
+#define CountForError 10
+
+/**
  * @struct UST
  * @brief Structure to store ADC voltage and angle data.
  * 
  * This structure is used to store the ADC voltage value and its corresponding
- * angle calculated from the photodiode readings.
+ * angle calculated from the photodiode readings. Also store warnin, error counter and error flag
  */
 typedef struct { 
     uint16_t ADC_Voltage; ///< The ADC voltage value from the photodiode sensor.
     double Angle; ///< The calculated angle based on the ADC voltage.
+	uint32_t warning;	///< Warning flag if USART0 communication is interrupted
+	uint8_t errorCounter; ///< Counter for error confirmation
+	uint8_t error;	///< 
 } UST;
 
 /**

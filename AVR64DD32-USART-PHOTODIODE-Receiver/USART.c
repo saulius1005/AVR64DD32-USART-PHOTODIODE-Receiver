@@ -61,7 +61,13 @@ void USART0_sendString(char *str) {
  */
 char USART0_readChar() {
     USART0.STATUS = USART_RXCIF_bm; ///< Clear the receive interrupt flag.
-    while (!(USART0.STATUS & USART_RXCIF_bm)); ///< Wait for data to be received.
+	uint32_t timeout_counter = TIMEOUT_COUNTER; // Set a timeout counter
+    while (!(USART0.STATUS & USART_RXCIF_bm)){ ///< Wait for data to be received.
+		if (--timeout_counter == 0) { // Timeout condition
+			UART_READ_PHOTODIODE.warning = 1; // Set warning if timeout occurs
+			break;
+		}
+	}
     return USART0.RXDATAL; ///< Return the received character.
 }
 
@@ -103,26 +109,40 @@ void executeCommand(char *command) {
  * photodiode reading.
  */
 void LedDataReader() {
-    uint8_t index = 0; ///< Index for storing characters in the command array.
-    char command[15] = {0}; ///< Array to store the received command.
-    uint8_t start = 0; ///< Flag to indicate the start of a command.
+    uint8_t index = 0;
+    char command[15] = {0};
+    uint8_t start = 0;
 
     while (1) {
-        char c = USART0_readChar(); ///< Read a character from USART0.
-        
-        if (start == 1) {
-            if (c == ']') {
-                start = 0; ///< End of command, execute the command.
-                executeCommand(command); ///< Process the command.
-                index = 0; ///< Reset index for the next command.
-                break; ///< Exit the loop after processing the command.
-            } else {
-                command[index++] = c; ///< Store the character in the command array.
-            }
-        }
+	    char c = USART0_readChar();
 
-        if (c == '[') {
-            start = 1; ///< Start receiving the command when '[' is encountered.
-        }
+	    if (!UART_READ_PHOTODIODE.warning) {
+			UART_READ_PHOTODIODE.errorCounter = 0;
+		    if (start == 1) {
+			    if (c == ']') {
+				    start = 0;
+				    executeCommand(command);
+				    index = 0;
+				    break;
+				    } else {
+				    command[index++] = c;
+			    }
+		    }
+		    if (c == '[') {
+			    start = 1;
+		    }
+		    if (UART_READ_PHOTODIODE.error == 1) {
+			    UART_READ_PHOTODIODE.errorCounter = 0;
+			    UART_READ_PHOTODIODE.error = 0;
+		    }
+		    } else {
+		    UART_READ_PHOTODIODE.warning = 0;
+		    if (UART_READ_PHOTODIODE.errorCounter < CountForError) {
+			    UART_READ_PHOTODIODE.errorCounter += 1;
+			    } else {
+			    UART_READ_PHOTODIODE.error = 1;
+		    }
+		    break;
+	    }
     }
 }
