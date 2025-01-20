@@ -14,6 +14,13 @@ Also rottating optocoupler and MT6701 case:
 ![dissasembled optocoupler](https://github.com/user-attachments/assets/faaab7e1-05e1-421a-8fdb-034708ccfe64)
 ![ir led illumination](https://github.com/user-attachments/assets/f466614a-7d3a-49eb-8825-5ebd937e4900)
 
+Transsmit speed confirmation:
+![500kbps reading](https://github.com/user-attachments/assets/a5f82a0f-8984-47af-8faf-e9b4ea007466)
+
+Signal delay is about ~2.3us (yellow signal at AVR64DD32 RX pin, and blue signal on TX LED pin):
+![delay](https://github.com/user-attachments/assets/a62518a8-2c48-40ba-a879-a0749a46dc91)
+
+
 It seems that this rotating optocoupler works perfectly for my requirements, so I will focus on improving it further. I might even use an optical fiber to replace the current 1.3-meter (4x 65 cm) wires, which would allow for even higher speeds.
 
 Grabcad models: 
