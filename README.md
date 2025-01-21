@@ -1,6 +1,7 @@
 This program is designed for one of the data transmission options that I am most likely to choose later for the "SunFlower" project. DC voltages will be transmitted via a "Conductive Slip Ring," while signals—probably not through brushes this time :D. I also considered Bluetooth, WiFi, and GSM modules that could transmit signals from the "Spinning Head" to the stationary column part, but that would be a rather poor choice for several reasons, the main ones being reliability, durability, and signal transmission quality (especially when data would need to be sent through a grounded, closed ~7–12 mm thick steel structure).
 
-2025-01-21 Update: A YouTube video demonstrated a setup where a photodiode and LED are directly aligned with each other. Today, I tried making a simple rotating optical coupler using whatever I had on hand. New wiring circuit (Firmware changes: the USART baud rate was changed from 0.25 Mbps to 0.5 Mbps.):
+# 2025-01-21 Update: A YouTube video demonstrated a setup where a photodiode and LED are directly aligned with each other. Today, I tried making a simple rotating optical coupler using whatever I had on hand. 
+New wiring circuit (Firmware changes: the USART baud rate was changed from 0.25 Mbps to 0.5 Mbps.):
 ![New circuit](https://github.com/user-attachments/assets/1bfd5152-9d49-45c0-9684-0f8d50351033)
 
 Testing breadboard on Video:
@@ -23,7 +24,7 @@ Signal delay is about ~2.3us (yellow signal at AVR64DD32 RX pin, and blue signal
 
 It seems that this rotating optocoupler works perfectly for my requirements, so I will focus on improving it further. I might even use an optical fiber to replace the current 1.3-meter (4x 65 cm) wires, which would allow for even higher speeds.
 
-Grabcad models: 
+## Grabcad models: 
 Optocoupler:
 https://grabcad.com/library/dye-rotating-optocoupler-1
 MT6701 Case:
